@@ -11,6 +11,7 @@ const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 let clienteSupabase = null;
 
 // Estado Global de la aplicación
+const MODO_DEMO = true;
 let modoAdminActivo = false;
 let categoriaForoActual = 'all';
 let busquedaForoActual = '';
@@ -308,7 +309,7 @@ async function renderizarTablaReservas() {
     if (!tbody) return;
     
     const thAdmin = document.getElementById("th-admin-actions");
-    if (thAdmin) thAdmin.style.display = modoAdminActivo ? "table-cell" : "none";
+    if (thAdmin) thAdmin.style.display = (!MODO_DEMO && modoAdminActivo) ? "table-cell" : "none";
     
     const { data: reservas } = await clienteSupabase.from('reservas').select('*').order('fecha', { ascending: true });
 
@@ -320,7 +321,7 @@ async function renderizarTablaReservas() {
 
     reservas.forEach(res => {
         const fila = document.createElement("tr");
-        let tdAdmin = modoAdminActivo ? `<td><button onclick="cambiarEstadoReserva(${res.id}, 'Aprobada')" style="background:#16a34a; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-weight:bold; margin-right:4px;">✔️ Aprobar</button> <button onclick="cambiarEstadoReserva(${res.id}, 'Cancelada')" style="background:#dc2626; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-weight:bold;">❌ Cancelar</button></td>` : "";
+        let tdAdmin = (!MODO_DEMO && modoAdminActivo) ? `<td><button onclick="cambiarEstadoReserva(${res.id}, 'Aprobada')" style="background:#16a34a; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-weight:bold; margin-right:4px;">✔️ Aprobar</button> <button onclick="cambiarEstadoReserva(${res.id}, 'Cancelada')" style="background:#dc2626; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-weight:bold;">❌ Cancelar</button></td>` : "";
 
         fila.innerHTML = `<td><b>${res.ref}</b></td><td>${res.espacio}</td><td>${res.fecha}</td><td>${res.franja}</td><td>${res.nombre_vecino} (${res.vivienda})</td><td>${res.telefono || ''}</td><td>${res.email || ''}</td><td><span class="status-badge ${res.estado.toLowerCase()}">${res.estado}</span></td>${tdAdmin}`;
         tbody.appendChild(fila);
@@ -767,7 +768,7 @@ async function cargarAnunciosTablon() {
             </div>
             <h3 class="notice-title">${tituloVisible}</h3>
             <p class="notice-body-text">${anuncio.mensaje || ''}</p>
-            ${modoAdminActivo ? `
+            ${(!MODO_DEMO && modoAdminActivo) ? `
                 <div style="margin-top:14px; padding-top:10px; border-top:1px solid var(--border-color); display:flex; justify-content:flex-end; gap:8px;">
                     <button type="button" onclick="cargarComunicadoParaEditar(${anuncio.id})" style="background:#2563eb; color:white; border:none; padding:5px 12px; border-radius:4px; font-size:0.75rem; font-weight:700; cursor:pointer;">✏️ Editar</button>
                     <button type="button" onclick="eliminarComunicadoTablon(${anuncio.id})" style="background:#dc2626; color:white; border:none; padding:5px 12px; border-radius:4px; font-size:0.75rem; font-weight:700; cursor:pointer;">🗑️ Eliminar</button>
@@ -889,6 +890,7 @@ async function enviarFormularioIncidencia(e) {
 }
 
 function toggleModoAdmin() {
+    if (MODO_DEMO) return; // En modo demo el acceso de administrador queda inactivo desde la interfaz
     if (modoAdminActivo) {
         modoAdminActivo = false;
         actualizarVisibilidadAdmin();
@@ -915,22 +917,35 @@ async function actualizarVisibilidadAdmin() {
     const indicador = document.getElementById("admin-status-indicator");
     const textoBtn = document.getElementById("btn-admin-text");
     const panelAdminTablon = document.getElementById("panel-admin-tablon");
+    const adminAlquilerActions = document.getElementById("admin-alquiler-actions");
 
-    if (navItemAdmin) navItemAdmin.style.display = modoAdminActivo ? "block" : "none";
-    if (indicador) indicador.style.display = modoAdminActivo ? "inline-block" : "none";
-    if (textoBtn) textoBtn.textContent = modoAdminActivo ? "Cerrar Sesión Admin" : "Acceso Junta / Admin";
-    if (panelAdminTablon) panelAdminTablon.style.display = modoAdminActivo ? "block" : "none";
+    if (MODO_DEMO) {
+        if (navItemAdmin) navItemAdmin.style.display = "none";
+        if (indicador) indicador.style.display = "none";
+        if (textoBtn) textoBtn.style.display = "none";
+        if (panelAdminTablon) panelAdminTablon.style.display = "none";
+        if (adminAlquilerActions) adminAlquilerActions.style.display = "none";
+    } else {
+        if (navItemAdmin) navItemAdmin.style.display = modoAdminActivo ? "block" : "none";
+        if (indicador) indicador.style.display = modoAdminActivo ? "inline-block" : "none";
+        if (textoBtn) {
+            textoBtn.style.display = "inline-block";
+            textoBtn.textContent = modoAdminActivo ? "Cerrar Sesión Admin" : "Acceso Junta / Admin";
+        }
+        if (panelAdminTablon) panelAdminTablon.style.display = modoAdminActivo ? "block" : "none";
+        if (adminAlquilerActions) adminAlquilerActions.style.display = modoAdminActivo ? "block" : "none";
+    }
     
     renderizarTablaReservas();
     await cargarAnunciosTablon();
 
-    if (modoAdminActivo) {
+    if (!MODO_DEMO && modoAdminActivo) {
         await renderizarCensoVecinos();
     } else {
         const contenedorAdmin = document.getElementById("seccion-administracion");
         if (contenedorAdmin) contenedorAdmin.innerHTML = "";
 
-        // Si el usuario estaba en la pestaña de administración al cerrar sesión, redirigir a inicio
+        // Si el usuario estaba en la pestaña de administración al cerrar sesión o en modo demo, redirigir a inicio
         const tabActiva = document.querySelector(".tab-section.tab-activa");
         if (tabActiva && tabActiva.id === "administracion") {
             cambiarPestana("#inicio", true);
@@ -945,8 +960,7 @@ function cambiarPestana(idTab, actualizarHistorial = true) {
     const tabLimpio = idTab.replace('#', '').trim();
     if (!PESTANAS_VALIDAS.includes(tabLimpio)) return;
 
-    if (tabLimpio === 'administracion' && !modoAdminActivo) {
-        mostrarToast("Acceso restringido a miembros de la Junta.", "warning");
+    if (tabLimpio === 'administracion' && (MODO_DEMO || !modoAdminActivo)) {
         return;
     }
 

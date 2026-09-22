@@ -31,8 +31,7 @@
             <div class="auth-form-pane active">
                 <div class="auth-security-notice">
                     Usa las credenciales de prueba:<br>
-                    <strong>Vecino:</strong> vecino@penanevada.es / vecino1234<br>
-                    <strong>Junta:</strong> admin@penanevada.es / admin1234
+                    <strong>Vecino:</strong> vecino@penanevada.es / vecino1234
                 </div>
                 <form>
                     <div class="input-group-modern">
@@ -392,7 +391,7 @@
 
             <div class="my-reservations-box">
                 <h3 style="color:var(--primary-dark); margin-bottom:4px;">Historial Global de Reservas</h3>
-                <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:14px;" id="admin-alquiler-actions">Sesión de Administrador activa: Tienes permisos para Aprobar o Cancelar las solicitudes de los vecinos.</p>
+                <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:14px; display:none;" id="admin-alquiler-actions">Sesión de Administrador activa: Tienes permisos para Aprobar o Cancelar las solicitudes de los vecinos.</p>
                 <div style="overflow-x:auto;">
                     <table class="reservations-table">
                         <thead>
@@ -429,7 +428,7 @@
                     <span id="board-count-text" class="board-count-info">Cargando comunicados...</span>
                     <div>
                         <span id="admin-status-indicator" class="admin-active-badge" style="display:none; margin-right:10px;">Sesión Junta Activa</span>
-                        <button id="btn-admin-text" class="btn-admin-auth" onclick="toggleModoAdmin()">Acceso Junta / Admin</button>
+                        <button id="btn-admin-text" class="btn-admin-auth" style="display:none;" onclick="toggleModoAdmin()">Acceso Junta / Admin</button>
                     </div>
                 </div>
 
