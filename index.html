@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Urbanización Peñanevada IV - La Balconada</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Inyección prioritaria de la librería oficial de Supabase en memoria -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+    <!-- MURO DE AUTENTICACIÓN VECINAL (AUTH GATE) -->
+    <div class="auth-gate-overlay">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="auth-logo-badge">
+                    <img src="Logo_Penanevada_IV.jpg" alt="Logo Peñanevada IV" class="auth-logo-img">
+                </div>
+                <h1 class="auth-title">Portal Vecinal</h1>
+                <p class="auth-subtitle">Urbanización Peñanevada IV - La Balconada</p>
+                <span class="auth-tag-pill">Acceso Exclusivo</span>
+            </div>
+
+            <div class="auth-nav-tabs">
+                <button class="auth-tab-btn active">Iniciar Sesión</button>
+                <button class="auth-tab-btn">Alta de Nuevo Vecino</button>
+            </div>
+
+            <!-- Formulario de Login -->
+            <div class="auth-form-pane active">
+                <div class="auth-security-notice">
+                    Usa las credenciales de prueba:<br>
+                    <strong>Vecino:</strong> vecino@penanevada.es / vecino1234<br>
+                    <strong>Junta:</strong> admin@penanevada.es / admin1234
+                </div>
+                <form>
+                    <div class="input-group-modern">
+                        <label>Correo Electrónico</label>
+                        <input type="email" id="login-email" placeholder="ejemplo@correo.com" required autocomplete="username">
+                    </div>
+                    <div class="input-group-modern">
+                        <label>Contraseña</label>
+                        <input type="password" id="login-password" placeholder="••••••••" required autocomplete="current-password">
+                    </div>
+                    <button type="submit" class="btn-submit-form">Entrar al Portal Vecinal</button>
+                </form>
+            </div>
+
+            <!-- Formulario de Registro -->
+            <div class="auth-form-pane">
+                <form>
+                    <div class="input-group-modern">
+                        <label>Nombre y Apellidos *</label>
+                        <input type="text" placeholder="Juan Pérez" required>
+                    </div>
+                    <div class="input-group-modern">
+                        <label>Vivienda (Chalet / Portal) *</label>
+                        <input type="text" placeholder="Chalet 24" required>
+                    </div>
+                    <div class="input-group-modern">
+                        <label>Correo Electrónico *</label>
+                        <input type="email" placeholder="vecino@correo.com" required>
+                    </div>
+                    <div class="input-group-modern">
+                        <label>Código de Urbanización *</label>
+                        <input type="text" placeholder="Código provisto por la Junta" required autocomplete="off">
+                        <small style="color: var(--text-muted); display:block; margin-top:4px;">Código de prueba: <strong>BALCONADA2026</strong></small>
+                    </div>
+                    <button type="submit" class="btn-submit-form">Verificar y Crear Cuenta Vecinal</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONTENEDOR DE NOTIFICACIONES TOAST -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- HEADER Y NAVEGACIÓN FIJA -->
+    <header>
+        <div class="nav-container">
+            <a href="#inicio" class="brand-link">
+                <img src="Logo_Penanevada_IV.jpg" alt="Logo" class="brand-logo-img">
+                <div class="brand-text">
+                    <span class="brand-title">Peñanevada IV</span>
+                    <span class="brand-subtitle">La Balconada</span>
+                </div>
+            </a>
+            
+            <button id="btn-hamburger" class="hamburger-btn" aria-label="Abrir menú de navegación">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </button>
+
+            <nav>
+                <ul id="nav-menu" class="nav-menu">
+                    <li><a href="#inicio" class="active">Inicio</a></li>
+                    <li><a href="#piscina">🏊 Piscina</a></li>
+                    <li><a href="#club-social">🍽️ Club Social</a></li>
+                    <li><a href="#jardineria">🌿 Jardinería</a></li>
+                    <li><a href="#alquiler">📅 Reservas</a></li>
+                    <li><a href="#noticias">📢 Tablón</a></li>
+                    <li><a href="#foro">💬 Foro</a></li>
+                    <li id="nav-item-admin" style="display:none;"><a href="#administracion">⚙️ Administración</a></li>
+                    <li><a href="#directorio">📞 Directorio</a></li>
+                    <li><a href="#contacto">🚨 Contacto</a></li>
+                </ul>
+            </nav>
+
+            <div class="nav-user-area">
+                <div class="user-profile-badge">
+                    <div class="user-avatar-circle">V</div>
+                    <div>
+                        <div class="user-name-text">Vecino</div>
+                        <div class="user-home-text">Cargando...</div>
+                    </div>
+                </div>
+                <button class="btn-logout" title="Cerrar sesión">🚪 Salir</button>
+            </div>
+        </div>
+    </header>
+    <!-- PORTADA / HERO PRINCIPAL (PESTAÑA INICIO) -->
+    <div id="inicio" class="tab-section tab-activa">
+        <div class="hero-section">
+            <div class="hero-content">
+                <span class="hero-badge-pill">✨ Comunidad de Propietarios Oficial</span>
+                <h2 class="hero-title">Bienvenidos al Portal de la Urbanización</h2>
+                <p class="hero-subtitle">Collado Villalba, Madrid</p>
+                <p class="hero-description">Gestiona tus reservas de espacios, mantente al día con los comunicados de la Junta y participa en los debates de nuestro foro vecinal en la nube.</p>
+                <div class="hero-cta-group">
+                    <a href="#alquiler" class="btn-primary">Reservar Espacio Comunitario</a>
+                    <a href="#noticias" class="btn-secondary">Ver Circulares Oficiales</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section-wrapper">
+            <div class="section-header">
+                <span class="section-tag">Urbanización Peñanevada IV</span>
+                <h2 class="section-title">Servicios Generales de la Comunidad</h2>
+                <p class="section-lead">Accede de forma directa a las distintas secciones y herramientas del portal utilizando el menú superior fijo.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONTENEDOR PRINCIPAL DE SECCIONES DINÁMICAS -->
+    <main>
+        <!-- 🏊 PISCINA COMUNITARIA (FOTOGRAFÍA REAL Y NORMATIVA) -->
+        <section id="piscina" class="tab-section section-wrapper">
+            <div class="section-header">
+                <span class="section-tag">Temporada de Verano</span>
+                <h2 class="section-title">Piscina Comunitaria y Solárium</h2>
+                <p class="section-lead">Fechas de apertura, horarios del servicio de socorrismo y normativa de uso de las instalaciones comunes.</p>
+            </div>
+            
+            <div class="pool-real-banner">
+                <div class="pool-real-banner-content">
+                    <span class="pool-badge-pill">☀️ Temporada de Verano</span>
+                    <h3 class="pool-real-title">Piscina Comunitaria</h3>
+                    <p class="pool-real-subtitle">Urbanización Peñanevada IV - La Balconada</p>
+                    <div class="pool-schedule-pill">
+                        <span class="schedule-icon">🏊</span>
+                        <div class="schedule-text">
+                            <strong>Horario de Socorrismo</strong>
+                            <span>Lunes a Domingo: 11:30h - 20:30h</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pool-schedule-grid">
+                <div class="schedule-card highlight">
+                    <div class="schedule-icon-wrap">🏊</div>
+                    <div class="schedule-content">
+                        <h4>Horario del Servicio de Socorrismo</h4>
+                        <span class="time-pill">Lunes a Domingo: 11:30h - 20:30h</span>
+                        <p>Queda estrictamente prohibido el baño fuera del horario de presencia del socorrista titulado por motivos de seguridad civil.</p>
+                    </div>
+                </div>
+                <div class="schedule-card">
+                    <div class="schedule-icon-wrap">🧼</div>
+                    <div class="schedule-content">
+                        <h4>Mantenimiento y Depuración</h4>
+                        <span class="time-pill">Diario: 08:00h - 10:30h</span>
+                        <p>Labores de limpieza de fondos, control del pH del agua y dosificación automatizada de cloro para garantizar las condiciones sanitarias.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pool-rules-box">
+                <h4 class="pool-rules-title">📜 Normas Obligatorias de Uso y Convivencia</h4>
+                <div class="rules-grid-2">
+                    <div class="rule-item">
+                        <span class="rule-icon">🚿</span>
+                        <div>
+                            <strong>Ducha Obligatoria</strong>
+                            <p>Es obligatorio ducharse antes de introducirse en cualquiera de los vasos de agua para mantener la higiene de la pradera.</p>
+                        </div>
+                    </div>
+                    <div class="rule-item">
+                        <span class="rule-icon">👶</span>
+                        <div>
+                            <strong>Control de Menores</strong>
+                            <p>Los menores de 12 años deben estar permanentemente acompañados en el recinto por un adulto que se haga responsable de ellos.</p>
+                        </div>
+                    </div>
+                    <div class="rule-item">
+                        <span class="rule-icon">👟</span>
+                        <div>
+                            <strong>Calzado Adecuado</strong>
+                            <p>Uso obligatorio de calzado de baño (chanclas) en las zonas de duchas, accesos a vestuarios y perímetros de hormigón de los vasos.</p>
+                        </div>
+                    </div>
+                    <div class="rule-item">
+                        <span class="rule-icon">🚫</span>
+                        <div>
+                            <strong>Prohibición de Cristales y Mascotas</strong>
+                            <p>No se permite introducir envases de vidrio, comida en la pradera ni el acceso de animales de compañía al recinto vallado.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- 🍽️ CLUB SOCIAL Y RESTAURANTE (CONTENIDO ENRIQUECIDO DE AYER) -->
+        <section id="club-social" class="tab-section section-wrapper">
+            <div class="section-header">
+                <span class="section-tag">Gastronomía y Ocio</span>
+                <h2 class="section-title">Club Social y Restaurante</h2>
+                <p class="section-lead">Disfruta de la terraza exterior y los servicios de restauración disponibles exclusivamente para residentes y sus invitados.</p>
+            </div>
+
+            <div class="social-club-showcase">
+                <div class="social-club-info-col">
+                    <div>
+                        <h3 style="color: var(--primary-dark); font-weight:800; font-size:1.5rem; margin-bottom:10px;">El Punto de Encuentro Vecinal</h3>
+                        <p style="color: var(--text-muted); font-size:0.95rem;">Un espacio ideal para celebrar eventos familiares, comidas de fin de semana o relajarse tras la jornada deportiva en las pistas.</p>
+                        
+                        <div class="club-hours-badge-box">
+                            <div class="club-time-card">
+                                <span class="label">Horario de Verano</span>
+                                <span class="val">10:00h - 00:00h</span>
+                            </div>
+                            <div class="club-time-card">
+                                <span class="label">Horario de Invierno</span>
+                                <span class="val">V-D: 11:00h - 22:00h</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 style="font-weight:700; color:var(--text-main); margin-bottom:8px;">🍳 Especialidades del Restaurante:</h4>
+                        <ul class="menu-highlights-list">
+                            <li>🥘 Arroces y Paellas por encargo (especialidad de los domingos).</li>
+                            <li>🥩 Carnes a la brasa y raciones variadas de cocina tradicional castellana.</li>
+                            <li>🍔 Menú infantil y opciones adaptadas para intolerancias alimentarias.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="social-club-visual-col">
+                    <h4>Reservas del Restaurante</h4>
+                    <p>Para comidas de grupos de más de 8 personas o encargo de arroces, contacte con el concesionario del Club con un mínimo de 48 horas de antelación.</p>
+                    <button class="btn-primary" style="align-self:center;" onclick="mostrarToast('Llamando al restaurante: 918500011', 'info')">📞 Llamar al Restaurante</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 🌿 JARDINERÍA Y ENTORNO (CONTENIDO ENRIQUECIDO DE AYER) -->
+        <section id="jardineria" class="tab-section section-wrapper">
+            <div class="section-header">
+                <span class="section-tag">Mantenimiento y Conservación</span>
+                <h2 class="section-title">Jardinería, Podas y Zonas Verdes</h2>
+                <p class="section-lead">Información sobre las campañas periódicas de conservación del entorno natural común y privado.</p>
+            </div>
+
+            <div class="gardening-cards-grid">
+                <div class="gardening-card">
+                    <div>
+                        <div class="gardening-icon-top">🌳</div>
+                        <h3>Tratamientos Fitosanitarios</h3>
+                        <p>Campañas anuales preventivas contra la procesionaria del pino en las zonas limítrofes con la sierra y control del escarabajo picudo.</p>
+                    </div>
+                    <div class="gardening-details-box">
+                        <strong>Próxima Campaña:</strong> Octubre 2026 (Avisos específicos por parcelas)
+                    </div>
+                </div>
+                <div class="gardening-card">
+                    <div>
+                        <div class="gardening-icon-top">✂️</div>
+                        <h3>Calendario de Podas y Setos</h3>
+                        <p>Regulación comunitaria para el mantenimiento de arizónicas y setos perimetrales privados que colindan con los viales públicos de la urbanización.</p>
+                    </div>
+                    <div class="gardening-details-box">
+                        <strong>Límite de Vuelo:</strong> Los setos no deben invadir más de 10cm las aceras comunes.
+                    </div>
+                </div>
+                <div class="gardening-card">
+                    <div>
+                        <div class="gardening-icon-top">💧</div>
+                        <h3>Riego Eficiente y Sostenible</h3>
+                        <p>Gestión automatizada del riego por goteo nocturno de las praderas y parterres comunes para optimizar el consumo de agua de la comunidad.</p>
+                    </div>
+                    <div class="gardening-details-box">
+                        <strong>Sistema:</strong> Agua de pozo propio autorizada por la Confederación Hidrográfica.
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- RESERVAS / ALQUILER DE ESPACIOS -->
+        <section id="alquiler" class="tab-section section-wrapper">
+            <div class="section-header">
+                <span class="section-tag">Calendario Interactivo</span>
+                <h2 class="section-title">Reserva de Espacios Comunitarios</h2>
+                <p class="section-lead">Selecciona un espacio, comprueba la disponibilidad en la cuadrícula y formaliza tu solicitud en la nube.</p>
+            </div>
+
+            <div class="rental-section-container">
+                <div>
+                    <h3 style="margin-bottom:14px; color:var(--primary-dark);">1. Selecciona el Espacio</h3>
+                    <div class="spaces-catalog-grid">
+                        <div id="card-espacio-salon" class="space-card-selectable active" onclick="seleccionarEspacioAlquiler('salon', this)">
+                            <div class="space-info-meta">
+                                <h4>Salón Social Multiusos</h4>
+                                <p>Ideal para eventos privados, cumpleaños y reuniones vecinales.</p>
+                            </div>
+                            <span class="space-capacity-pill">Aforo: 40 pers.</span>
+                        </div>
+                        <div id="card-espacio-pistas" class="space-card-selectable" onclick="seleccionarEspacioAlquiler('pistas', this)">
+                            <div class="space-info-meta">
+                                <h4>Pistas de Pádel / Tenis</h4>
+                                <p>Uso deportivo regular para residentes de la urbanización.</p>
+                            </div>
+                            <span class="space-capacity-pill">Máx: 4 jugadores</span>
+                        </div>
+                    </div>
+
+                    <div class="calendar-widget-box">
+                        <div class="calendar-header-bar">
+                            <button class="cal-nav-btn" onclick="navegarMesCalendario(-1)">◀</button>
+                            <h4 id="calendar-month-label" class="calendar-month-title">Septiembre 2026</h4>
+                            <button class="cal-nav-btn" onclick="navegarMesCalendario(1)">▶</button>
+                        </div>
+                        <div class="calendar-legend">
+                            <div class="legend-item"><span class="legend-dot avail"></span> Libre</div>
+                            <div class="legend-item"><span class="legend-dot booked"></span> Reservado</div>
+                            <div class="legend-item"><span class="legend-dot selected"></span> Tu Selección</div>
+                        </div>
+                        <div class="calendar-weekdays-row">
+                            <div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div><div>Vie</div><div>Sáb</div><div>Dom</div>
+                        </div>
+                        <div id="calendar-days-container" class="calendar-days-matrix"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="rental-form-card">
+                        <h3>2. Datos de la Solicitud</h3>
+                        <form id="form-solicitar-alquiler" onsubmit="enviarSolicitudAlquiler(event)">
+                            <div class="input-group-modern">
+                                <label>Espacio Comunitario</label>
+                                <select id="alquiler-espacio-select" onchange="sincronizarEspacioDesdeFormulario(this.value)">
+                                    <option value="salon">Salón Social Multiusos</option>
+                                    <option value="pistas">Pistas de Pádel / Tenis</option>
+                                </select>
+                            </div>
+                            <div class="form-row-2">
+                                <div class="input-group-modern">
+                                    <label>Fecha Seleccionada</label>
+                                    <input type="date" id="alquiler-fecha" onchange="seleccionarFechaManual(this.value)" required>
+                                </div>
+                                <div class="input-group-modern">
+                                    <label>Franja Horaria</label>
+                                    <select id="alquiler-franja">
+                                        <option value="manana">Mañana (11:00h - 15:00h)</option>
+                                        <option value="tarde">Tarde (16:30h - 21:30h)</option>
+                                        <option value="completa">Jornada Completa</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="input-group-modern">
+                                <label>Teléfono de Contacto</label>
+                                <input type="tel" id="alquiler-telefono" placeholder="600 000 000" required>
+                            </div>
+                            <div class="input-group-modern">
+                                <label>Correo electrónico</label>
+                                <input type="email" id="alquiler-email" placeholder="vecino@email.com" required>
+                            </div>
+
+                            <button type="submit" class="btn-primary" style="width:100%; justify-content:center;">Enviar Solicitud de Reserva</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="my-reservations-box">
+                <h3 style="color:var(--primary-dark); margin-bottom:4px;">Historial Global de Reservas</h3>
+                <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:14px;" id="admin-alquiler-actions">Sesión de Administrador activa: Tienes permisos para Aprobar o Cancelar las solicitudes de los vecinos.</p>
+                <div style="overflow-x:auto;">
+                    <table class="reservations-table">
+                        <thead>
+                            <tr>
+                                <th>Ref</th>
+                                <th>Espacio</th>
+                                <th>Fecha</th>
+                                <th>Horario</th>
+                                <th>Solicitante</th>
+                                <th>Teléfono</th>
+                                <th>Email</th>
+                                <th>Estado</th>
+                                <th id="th-admin-actions" style="display:none;">Acciones Junta</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-reservas">
+                            <!-- Inyección dinámica desde Supabase -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TABLÓN DE ANUNCIOS Y COMUNICADOS DE LA JUNTA -->
+        <section id="noticias" class="tab-section section-wrapper">
+            <div class="section-header">
+                <span class="section-tag">Circulares Informativas</span>
+                <h2 class="section-title">Tablón de Anuncios de la Junta</h2>
+                <p class="section-lead">Consulta las últimas actas de propietarios, notificaciones urgentes e incidencias reportadas en la urbanización.</p>
+            </div>
+            
+            <div id="admin-notice-box" class="board-container">
+                <div class="board-admin-bar">
+                    <span id="board-count-text" class="board-count-info">Cargando comunicados...</span>
+                    <div>
+                        <span id="admin-status-indicator" class="admin-active-badge" style="display:none; margin-right:10px;">Sesión Junta Activa</span>
+                        <button id="btn-admin-text" class="btn-admin-auth" onclick="toggleModoAdmin()">Acceso Junta / Admin</button>
+                    </div>
+                </div>
+
+                <!-- 📢 GESTIÓN DEL TABLÓN PARA ADMINISTRADORES (SOLO VISIBLE SI modoAdminActivo === true) -->
+                <div id="panel-admin-tablon" style="display:none; background:#ffffff; padding:20px; border-radius:var(--radius-sm); border:1px solid var(--border-color); margin-bottom:24px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                        <h3 id="comunicado-form-title" style="font-size:1.05rem; font-weight:700; color:var(--primary-dark); margin:0;">📢 Gestión del Tablón: Publicar Nuevo Comunicado</h3>
+                        <button type="button" onclick="cancelarEdicionComunicado()" id="btn-cancelar-comunicado" style="display:none; background:none; border:none; color:var(--text-muted); font-size:0.8rem; cursor:pointer; text-decoration:underline;">Cancelar edición</button>
+                    </div>
+                    <form id="form-gestion-comunicado" onsubmit="guardarComunicadoTablon(event)">
+                        <input type="hidden" id="comunicado-id" value="">
+                        <div style="display:grid; grid-template-columns: 2fr 1fr; gap:12px; margin-bottom:12px;">
+                            <div class="input-group-modern" style="margin-bottom:0;">
+                                <label style="font-size:0.78rem; font-weight:600;">Título del Comunicado *</label>
+                                <input type="text" id="comunicado-titulo" placeholder="Ej: Convocatoria Junta General Ordinaria" required style="padding:9px;">
+                            </div>
+                            <div class="input-group-modern" style="margin-bottom:0;">
+                                <label style="font-size:0.78rem; font-weight:600;">Categoría *</label>
+                                <select id="comunicado-categoria" required style="padding:9px;">
+                                    <option value="General">General</option>
+                                    <option value="Convocatoria">Convocatoria</option>
+                                    <option value="Mantenimiento">Mantenimiento</option>
+                                    <option value="Urgente">Urgente</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-group-modern" style="margin-bottom:12px;">
+                            <label style="font-size:0.78rem; font-weight:600;">Contenido del Comunicado *</label>
+                            <textarea id="comunicado-contenido" rows="4" placeholder="Escribe aquí el texto oficial del comunicado de la Junta..." required style="padding:9px;"></textarea>
+                        </div>
+                        <div style="display:flex; justify-content:flex-end; gap:10px;">
+                            <button type="submit" id="btn-guardar-comunicado" class="btn-primary" style="padding:10px 20px; font-size:0.88rem;">Publicar Comunicado</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="contenedor-anuncios" class="official-notices-grid">
+                    <!-- Inyección dinámica desde Supabase -->
+                </div>
+            </div>
+        </section>
+        <!-- FORO VECINAL INTERACTIVO -->
+        <section id="foro" class="tab-section section-wrapper">
+            <div class="section-header">
+                <span class="section-tag">Comunidad Activa</span>
+                <h2 class="section-title">Foro Abierto de Vecinos</h2>
+                <p class="section-lead">Comparte propuestas, publica anuncios de compraventa o debate amistosamente con el resto de propietarios.</p>
+            </div>
+
+            <div class="forum-container">
+                <div class="forum-top-bar">
+                    <div class="forum-search-box">
+                        <input type="text" id="forum-search-input" placeholder="🔍 Buscar temas por palabras clave...">
+                    </div>
+                    <button class="btn-primary" onclick="abrirModalNuevoTema()">+ Iniciar Nuevo Debate</button>
+                </div>
+                <div class="forum-categories-bar">
+                    <button class="cat-chip active" onclick="filtrarForoPorCategoria('all', this)">Todos los temas</button>
+                    <button class="cat-chip" onclick="filtrarForoPorCategoria('convivencia', this)">Propuestas y Convivencia</button>
+                    <button class="cat-chip" onclick="filtrarForoPorCategoria('servicios', this)">Recomendaciones y Servicios</button>
+                    <button class="cat-chip" onclick="filtrarForoPorCategoria('compraventa', this)">Compra / Venta</button>
+                </div>
+
+                <div id="forum-topics-list" class="forum-topics-list">
+                    <!-- Inyección dinámica desde Supabase -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ⚙️ PANEL DE ADMINISTRACIÓN Y CENSO VECINAL (ACCESO RESTRINGIDO A LA JUNTA) -->
+        <section id="administracion" class="tab-section section-wrapper">
+            <div class="section-header">
+                <span class="section-tag">Panel Privado de la Junta</span>
+                <h2 class="section-title">Administración y Censo Vecinal</h2>
+                <p class="section-lead">Gestión de altas, bajas, modificaciones de residentes y censo comunitario en la nube.</p>
+            </div>
+
+            <div id="seccion-administracion" class="board-container">
+                <!-- Inyección dinámica desde Supabase en renderizarCensoVecinos() -->
+            </div>
+        </section>
+
+        <!-- 📞 DIRECTORIO DE TELÉFONOS COMPLETO DE AYER -->
+        <section id="directorio" class="tab-section section-wrapper">
+            <div class="section-header">
+                <span class="section-tag">Teléfonos Útiles</span>
+                <h2 class="section-title">Directorio de Contactos y Emergencias</h2>
+                <p class="section-lead">Listado rápido de marcación telefónica del personal de administración, conserjería, mantenimiento y urgencias locales.</p>
+            </div>
+
+            <div class="directory-grid">
+                <div class="directory-card">
+                    <div class="dir-top">
+                        <div class="dir-icon">👮</div>
+                        <div>
+                            <h4 class="dir-title">Conserjería y Control</h4>
+                            <p class="dir-desc">Seguridad y acceso perimetral</p>
+                        </div>
+                    </div>
+                    <a href="tel:600112233" class="btn-call">📞 600 11 22 33</a>
+                </div>
+
+                <div class="directory-card">
+                    <div class="dir-top">
+                        <div class="dir-icon">💼</div>
+                        <div>
+                            <h4 class="dir-title">Administración de Fincas</h4>
+                            <p class="dir-desc">Fincas Villalba - L a V de 9h a 14h</p>
+                        </div>
+                    </div>
+                    <a href="tel:918500011" class="btn-call">📞 91 850 00 11</a>
+                </div>
+
+                <div class="directory-card">
+                    <div class="dir-top">
+                        <div class="dir-icon">🔧</div>
+                        <div>
+                            <h4 class="dir-title">Mantenimiento General</h4>
+                            <p class="dir-desc">Averías eléctricas y fontanería común</p>
+                        </div>
+                    </div>
+                    <a href="tel:655443322" class="btn-call">📞 655 44 33 22</a>
+                </div>
+
+                <div class="directory-card" style="border-color: var(--danger-subtle); background: #fff8f8;">
+                    <div class="dir-top">
+                        <div class="dir-icon" style="background: var(--danger-subtle); color: var(--danger);">🚨</div>
+                        <div>
+                            <h4 class="dir-title" style="color: var(--danger);">Urgencias Médicas / Policía</h4>
+                            <p class="dir-desc">Centro de Salud de Collado Villalba</p>
+                        </div>
+                    </div>
+                    <a href="tel:112" class="btn-call" style="background: var(--danger); color: white;">📞 Llamar Emergencias (112)</a>
+                </div>
+            </div>
+        </section>
+        <!-- CONTACTO E INCIDENCIAS -->
+        <section id="contacto" class="tab-section section-wrapper">
+            <div class="section-header">
+                <span class="section-tag">Atención al Propietario</span>
+                <h2 class="section-title">Contacto Centralizado de Incidencias</h2>
+                <p class="section-lead">Envía un aviso directo sobre roturas en zonas comunes, bombillas fundidas o sugerencias constructivas para la Junta.</p>
+            </div>
+
+            <div class="contact-layout-box">
+                <div class="contact-info-pane">
+                    <div>
+                        <h3>Reportar una Incidencia</h3>
+                        <p>Los avisos enviados a través de este formulario se registran de forma automática en la base de datos central de Supabase para su revisión diaria.</p>
+                    </div>
+                    <div class="contact-points">
+                        <div class="point-item">
+                            <div class="point-icon">📋</div>
+                            <div><strong>Administración Oficial</strong><br><small>Fincas Villalba - Tlf: 91 850 00 11</small></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contact-form-pane">
+                    <form id="community-contact-form" onsubmit="enviarFormularioIncidencia(event)">
+                        <div class="input-group-modern">
+                            <label>Motivo de la Notificación</label>
+                            <select id="motivo-consulta">
+                                <option value="Avería común">⚠️ Avería o Rotura en Zona Común</option>
+                                <option value="Alumbrado público">💡 Problema de Iluminación / Electricidad</option>
+                                <option value="Limpieza">🧹 Sugerencia de Limpieza / Conservación</option>
+                                <option value="Otro motivo">Otros Asuntos de la Comunidad</option>
+                            </select>
+                        </div>
+                        <div class="input-group-modern">
+                            <label>Tu Vivienda (Chalet / Portal) *</label>
+                            <input type="text" id="vivienda-contacto" placeholder="Ej: Chalet 15" required>
+                        </div>
+                        <div class="input-group-modern">
+                            <label>Descripción detallada del aviso *</label>
+                            <textarea id="mensaje-contacto" rows="5" placeholder="Escribe aquí los detalles del problema observado..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn-submit-form">Enviar Notificación a la Nube</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- VENTANAS MODALES EMERGENTES -->
+    <div id="modal-nuevo-tema" class="modal-overlay">
+        <div class="modal-dialog-box">
+            <div class="modal-header">
+                <h3 class="modal-title">Iniciar un Nuevo Debate Vecinal</h3>
+                <button class="modal-close-btn" onclick="cerrarModal('modal-nuevo-tema')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-nuevo-tema" onsubmit="guardarNuevoTemaForo(event)">
+                    <div class="input-group-modern">
+                        <label>Categoría del Foro</label>
+                        <select id="tema-categoria">
+                            <option value="convivencia">Propuestas y Convivencia</option>
+                            <option value="servicios">Recomendaciones y Servicios</option>
+                            <option value="compraventa">Compra / Venta</option>
+                        </select>
+                    </div>
+                    <div class="input-group-modern">
+                        <label>Título del Tema *</label>
+                        <input type="text" id="tema-titulo" placeholder="Escribe un título claro y explicativo" required>
+                    </div>
+                    <div class="input-group-modern">
+                        <label>Mensaje / Contenido detallado *</label>
+                        <textarea id="tema-contenido" rows="6" placeholder="Explica tu propuesta o anuncio al resto de propietarios..." required></textarea>
+                    </div>
+                    <div class="modal-footer" style="padding:10px 0 0 0; background:none; border:none;">
+                        <button type="button" class="btn-secondary" style="color:var(--text-main);" onclick="cerrarModal('modal-nuevo-tema')">Cancelar</button>
+                        <button type="submit" class="btn-primary">Publicar Tema</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DETALLE DE TEMA Y RESPUESTAS DEL FORO -->
+    <div id="modal-detalle-tema" class="modal-overlay">
+        <div class="modal-dialog-box modal-wide">
+            <div class="modal-header">
+                <div>
+                    <h3 class="modal-title" id="detalle-tema-titulo">Detalle del Debate</h3>
+                    <div id="detalle-tema-autor" style="font-size:0.85rem; color:var(--text-muted); margin-top:4px;"></div>
+                </div>
+                <button class="modal-close-btn" onclick="cerrarModal('modal-detalle-tema')">&times;</button>
+            </div>
+            <div class="modal-body" style="max-height: calc(85vh - 120px); overflow-y: auto;">
+                <div id="detalle-tema-contenido" style="font-size:0.95rem; line-height:1.6; color:var(--text-main); margin-bottom:20px; white-space:pre-wrap; background:#f8fafc; padding:16px; border-radius:var(--radius-sm); border:1px solid var(--border-color);"></div>
+
+                <div class="replies-container">
+                    <h4 style="font-size:1rem; font-weight:700; color:var(--primary-dark); margin-bottom:14px;">Respuestas</h4>
+                    <div id="contenedor-respuestas">
+                        <!-- Inyección dinámica de respuestas -->
+                    </div>
+
+                    <div style="margin-top:20px;">
+                        <div class="input-group-modern">
+                            <label for="nueva-respuesta" style="font-weight:600;">Escribe tu respuesta</label>
+                            <textarea id="nueva-respuesta" rows="3" placeholder="Escribe aquí tu respuesta..."></textarea>
+                        </div>
+                        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:10px;">
+                            <button type="button" class="btn-secondary" style="color:var(--text-main);" onclick="cerrarModal('modal-detalle-tema')">Cerrar</button>
+                            <button type="button" id="btn-publicar-respuesta" class="btn-primary" onclick="publicarRespuestaTema()">Publicar respuesta</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-admin-pin" class="modal-overlay">
+        <div class="modal-dialog-box" style="max-width:380px;">
+            <div class="modal-header">
+                <h3 class="modal-title">Autenticación de la Junta</h3>
+                <button class="modal-close-btn" onclick="cerrarModal('modal-admin-pin')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="input-group-modern">
+                    <label>Introduce el PIN de Seguridad</label>
+                    <input type="password" id="input-admin-pin" placeholder="••••" style="text-align:center; font-size:1.4rem; letter-spacing:4px;" maxlength="4">
+                    <small style="color: var(--text-muted); display:block; margin-top:6px; text-align:center;">PIN de demostración de la Junta: <strong>1234</strong></small>
+                </div>
+                <div class="modal-footer" style="padding:10px 0 0 0; background:none; border:none;">
+                    <button type="button" class="btn-secondary" style="color:var(--text-main);" onclick="cerrarModal('modal-admin-pin')">Cancelar</button>
+                    <button type="button" class="btn-primary" onclick="verificarPinAdmin()">Validar PIN</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PIE DE PÁGINA -->
+    <footer class="main-footer">
+        <div class="footer-bottom">
+            <p>&copy; 2026 Urbanización Peñanevada IV - La Balconada. Portal del Propietario en la Nube.</p>
+        </div>
+    </footer>
+
+    <!-- CARGA DIRECTA Y COMPATIBLE -->
+	<script src="Funciones.js?v=999"></script>
+</body>
+</html>
